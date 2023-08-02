@@ -1,0 +1,25 @@
+`include "constants.vams"
+`include "disciplines.vams"
+
+module sdm_switch1way(in,out,ctrl);
+	inout in,out;
+	input ctrl;
+	electrical in,out,ctrl;
+	parameter real Vth=1;				//the threshold value to determine if the CTRL is high or low
+	parameter real Ron=1m;
+	parameter real Roff=100T;
+	branch (in,out) res; 
+	
+	analog begin
+		@(cross(V(ctrl)-Vth,0,0.01n,ctrl.potential.abstol))
+			;
+		if (V(ctrl)>Vth)				//when CTRL is above threshold set the output eqaul to the input
+			V(res) <+ I(res)*Ron;
+		else 
+			V(res) <+ I(res)*Roff;
+	end 
+	
+	
+// Module contents
+
+endmodule // switch

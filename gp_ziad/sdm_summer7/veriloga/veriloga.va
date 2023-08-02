@@ -1,0 +1,39 @@
+`include "constants.h"
+`include "disciplines.h"
+`define N 7
+module sdm_summer7(IN,OUT);
+	input [0:`N-1] IN;
+	output OUT;
+	voltage OUT; 
+	voltage [0:`N-1] IN ;
+	parameter real VHIGH=2;
+	parameter real VLOW=0;
+	parameter real VREFP=2;
+	parameter real VREFN=0;
+	parameter real tt=1n;
+	parameter real gain=1;
+	real Vth=(VHIGH+VLOW)/2;
+	real vin [0:`N-1];
+	real vout;
+	
+	analog begin
+		generate ii (0,`N-1) begin
+			@(cross(V(IN[ii])-Vth,0,1f,1f))
+				;
+			if (V(IN[ii])>Vth)
+				vin[ii]=1;
+			if (V(IN[ii])<Vth)
+			//else
+				vin[ii]=0;
+		end
+		vout=0;
+		
+		generate ii (0,`N-1)
+			vout=vout+vin[ii];
+		V(OUT)<+transition(vout*gain,0,tt,tt);
+			
+		
+	end
+// Module contents
+
+endmodule // summer_gate

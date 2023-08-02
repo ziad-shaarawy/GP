@@ -1,0 +1,57 @@
+`include "constants.h"
+`include "discipline.h"
+module sdm_encoder(IP,IN,outP,outN,CLK,RST);
+
+// Module contents
+	input IP,IN,CLK,RST;
+	output outP,outN;
+	voltage IP,IN,outP,outN,CLK,RST;
+	parameter real Vinh=5;			//the input voltage that represents logic 1
+	parameter real Vinl=0;			//the input voltage that represets logic 0
+	parameter real Vrefp=1;			//the code that corresponds to 10 of PFD output
+	parameter real Vrefn=-1;		//the code that corresponds to 01 of PFD output
+	parameter real Vcm=0;			//the code that corresponds to 00 of PFD output	
+	parameter real tt=1n;
+	parameter real CLK_trans=0;	//CLk transition threshold
+	real Voutp;
+	real Voutn;
+	real Vth=(Vinh+Vinl)/2; 		//threshold voltage to determine if the input is 1 or 0
+	
+	analog begin
+		
+//		@(cross(V(CLK)-CLK_trans,+1,0.01n, CLK.potential.abstol)) begin
+		@(cross(V(IP)-Vth,0) or cross(V(IN)-Vth,0))
+			;
+		if (V(RST)<Vth) begin
+			if(V(IP)>Vth & V(IN)<Vth) begin			//if the input is 10 set the output to Vrefn
+				Voutp=Vrefn;
+				Voutn=Vrefp;
+			end			
+			else if (V(IP)<Vth & V(IN)>Vth) begin	//if the input is 01 set the output to Vrefp
+				Voutp=Vrefp;
+				Voutn=Vrefn;
+			end
+			else  begin								//otherwise set the output to Vcm
+				Voutp=Vcm;
+				Voutn=Vcm;
+			end
+		end
+//		end
+		
+		@(cross(V(RST)-CLK_trans,+1,0.01n, RST.potential.abstol)) 
+			;
+		if(V(RST)>=Vth) begin
+			Voutp=Vcm;
+			Voutn=Vcm;
+		end
+		
+		@(initial_step) begin
+			Voutp=Vcm;
+			Voutn=Vcm;
+		end
+			
+		V(outP)<+transition (Voutp,0,tt);
+		V(outN)<+transition (Voutn,0,tt);
+	end	
+		
+endmodule // encoder

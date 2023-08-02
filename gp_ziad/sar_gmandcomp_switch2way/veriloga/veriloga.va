@@ -1,0 +1,36 @@
+`include "constants.vams"
+`include "disciplines.vams"
+
+module sar_gmandcomp_switch2way(ctrl,t0,t1,t2);
+	input ctrl;
+	inout t0;
+	inout t1;
+	inout t2;
+	electrical t0,t1,t2,ctrl;
+	parameter Ron=1m;
+	parameter Roff=1e+14;
+	parameter vth=1;
+	branch(t0,t1) res1;
+	branch(t0,t2) res2;
+	
+	analog begin
+		@(initial_step) begin
+			V(res1)<+I(res1)*Ron;
+			V(res2)<+I(res2)*Roff;
+		end
+		
+		@(cross(V(ctrl)-vth))
+			;
+		if(V(ctrl)>=vth) begin
+			V(res1)<+I(res1)*Roff;
+			V(res2)<+I(res2)*Ron;
+		end
+		
+		else begin
+			V(res1)<+I(res1)*Ron;
+			V(res2)<+I(res2)*Roff;
+		end
+	end
+// Module contents
+
+endmodule // switch_2way

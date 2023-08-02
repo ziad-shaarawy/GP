@@ -1,0 +1,16 @@
+#
+# Edit Lock-Stake file. CAUTION: Please do not change.
+#
+# Information about current Edit Lock Owner.
+#
+LockStakeVersion               1.1
+LoginName                      aya
+HostName                       localhost.localdomain
+ProcessIdentifier              6119
+ProcessCreationTime_UTC        1688751132
+ProcessCreationTime_Readable   Fri Jul  7 13:32:12 2023 Eastern Daylight Time
+AppIdentifier                  OA File System Design Manager
+OSType                         unix
+ReasonForPlacingEditLock       OpenAccess edit lock
+FilePathUsedToEditLock         /home/aya/TannerEDA/GP/gp_integration/cco_test/schematic/sch.oa.cdslck
+TimeEditLocked                 Fri Jul  7 17:58:20 2023 Eastern Daylight Time

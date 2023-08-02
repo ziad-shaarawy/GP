@@ -1,0 +1,41 @@
+`include "constants.h"
+`include "disciplines.h"
+`define N 7
+module sdm_levelout(IN1,IN2,OUT);
+	input [0:`N-1] IN1,IN2;
+	output OUT;
+	voltage OUT; 
+	voltage [0:`N-1] IN1,IN2 ;
+	parameter real VHIGH=2;
+	parameter real VLOW=0;
+	parameter real tt=1n;
+	real Vth=(VHIGH+VLOW)/2;
+	real vin1[0:`N-1],vin2 [0:`N-1];
+	real vout;
+	
+	analog begin
+		generate ii (0,`N-1) begin
+			@(cross(V(IN1[ii])-Vth))
+				;
+			if (V(IN1[ii])>Vth)
+				vin1[ii]=1;
+			if (V(IN1[ii])<Vth)
+				vin1[ii]=0;
+			@(cross(V(IN2[ii])-Vth))
+				;
+			if(V(IN2[ii])>Vth)
+				vin2[ii]=1;
+			if(V(IN2[ii])<Vth)
+				vin2[ii]=0;
+		end
+		vout=0;
+		
+		generate ii (0,`N-1)
+			vout=vout+vin1[ii]-vin2[ii];
+		V(OUT)<+transition(vout,0,tt,tt);
+			
+		
+	end
+// Module contents
+
+endmodule // summer_gate

@@ -1,0 +1,16 @@
+#
+# Edit Lock-Stake file. CAUTION: Please do not change.
+#
+# Information about current Edit Lock Owner.
+#
+LockStakeVersion               1.1
+LoginName                      Ahmed
+HostName                       LAPTOP-9OADTQ8Q
+ProcessIdentifier              39
+ProcessCreationTime_UTC        1682778436
+ProcessCreationTime_Readable   Sat Apr 29 16:27:16 2023 Kaliningrad Standard Time
+AppIdentifier                  OA File System Design Manager
+OSType                         unix
+ReasonForPlacingEditLock       OpenAccess edit lock
+FilePathUsedToEditLock         /home/Ahmed/TannerEDA/GP/gp_ahmed/PIN_GENhalf_adder/symbol/symbol.oa.cdslck
+TimeEditLocked                 Sat Apr 29 20:40:54 2023 Kaliningrad Standard Time

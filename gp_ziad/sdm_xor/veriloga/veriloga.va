@@ -1,0 +1,70 @@
+`include "constants.h"
+`include "disciplines.h"
+`define N 7
+module summer_gate(IN,OUT);
+	input [0:`N-1] IN;
+	output OUT;
+	voltage OUT; 
+	voltage [0:`N-1] IN ;
+	parameter real VHIGH=2;
+	parameter real VLOW=0;
+	parameter real VREFP=2;
+	parameter real VREFN=0;
+	parameter real tt=1n;
+	real Vth=(VHIGH+VLOW)/2;
+	real vin [0:`N-1];
+	real vout;
+	
+	analog begin
+		generate ii (0,`N-1) begin
+			@(cross(V(IN[ii])-Vth))
+				;
+			if (V(IN[ii])>Vth)
+				vin[ii]=1;
+			if (V(IN[ii])<Vth)
+			//else
+				vin[ii]=0;
+		end
+		vout=0;
+		
+		generate ii (0,`N-1)
+			vout=vout+vin[ii];
+		V(OUT)<+transition(vout,0,tt,tt);
+			
+		
+	end
+// Module contents
+
+endmodule // summer_gate
+`include "constants.h"
+`include "disciplines.h"
+
+module sdm_xor(IN1,IN2,OUTP,OUTN);
+
+	input IN1,IN2;
+	output OUTP,OUTN;
+	voltage IN1,IN2,OUTP,OUTN;
+	parameter real Vhigh=2;
+	parameter real Vlow=0;
+	parameter real tt=1p;
+	parameter real tdel=0;
+	real Vth=(Vhigh+Vlow)/2;
+	integer logic1,logic2;
+	real outp,outn;
+	analog begin 
+		
+		@(above(V(IN1)-Vth,1f,1f)) 	logic1=1;
+		@(above(Vth-V(IN1),1f,1f))		logic1=0;
+			
+		@(above(V(IN2)-Vth,1f,1f)) 	logic2=1;
+		@(above(-V(IN2)+Vth,1f,1f))	logic2=0;
+	
+		outp=(logic1 ^ logic2) ? Vhigh : Vlow;
+		outn=(logic1 ^ logic2) ? Vlow : Vhigh;
+		
+		V(OUTP)<+ transition(outp,tdel,tt,tt);
+		V(OUTN)<+ transition(outn,tdel,tt,tt);
+	end
+// Module contents
+
+endmodule // XOR_GATE

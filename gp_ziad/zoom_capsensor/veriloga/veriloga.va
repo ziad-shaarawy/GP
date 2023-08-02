@@ -1,0 +1,16 @@
+`include "disciplines.vams"
+`include "constants.vams"
+
+module zoom_capsensor (p,n);
+    inout p,n;
+    electrical p,n;
+    parameter real C0 = 1e-12;
+    parameter real A = 0.5;
+    parameter real f = 1e9;
+    real C;
+    analog begin
+    		$bound_step(1.0/(100*f));
+    		C = C0 + A * sin(2 * `M_PI * f * $abstime);
+    		I(p,n) <+ ddt(C * V(p,n),1f);
+    end
+endmodule

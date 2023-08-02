@@ -1,0 +1,37 @@
+`include "disciplines.h"
+`include "constants.h"
+
+module sar_switch3way(CMctrl,ctrl,VOUT,VCM,VREFN,VREFP,gnd,vdd);
+	inout gnd,vdd;
+	input CMctrl,ctrl;
+	inout VOUT,VCM,VREFN,VREFP;
+	electrical VOUT,VCM,VREFN,VREFP,CMctrl,ctrl;
+	
+	parameter real VHIGH=2;
+	parameter real VLOW=0;
+	
+	real Vth=(VHIGH+VLOW)/2.0;
+	
+	analog begin
+		@(cross(V(CMctrl)-Vth))
+			;
+		@(cross(V(ctrl)-Vth))
+			;
+		
+		if(V(CMctrl)>Vth)
+			V(VOUT)<+V(VCM);
+			
+		else begin
+			if(V(ctrl)>Vth)
+				V(VOUT)<+V(VREFN);
+			
+			else
+				V(VOUT)<+V(VREFP);
+		end
+		
+	end
+
+
+// Module contents
+
+endmodule // switch_2ctrl

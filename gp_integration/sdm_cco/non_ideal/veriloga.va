@@ -1,0 +1,98 @@
+`include "discipline.h"
+`include "constants.h"
+`define PI  	3.14159265358979323846264338327950288419716939937511
+
+module sdm_cco(ctrl,outp,outn,PHI2_B,PHI2,CLK,gnd,vdd);
+	inout vdd,gnd;
+	input ctrl,PHI2_B,PHI2,CLK;
+	output [0:6] outp,outn;
+	electrical ctrl,PHI2_B,vdd,gnd,PHI2,CLK;
+	electrical [0:6] outp,outn;
+	parameter real center_freq = 10e6;
+	parameter real vco_gain = 1e6;
+	parameter real VHIGH=2;
+	parameter real VLOW=0;
+	parameter real tt=10p;
+	parameter real ICM=0;
+	parameter real initial_phase=0;
+	parameter real ROFF=100T;
+	parameter real RON=1;
+	parameter real Vth=1;
+	parameter real alpha=0;
+   real phase; 
+   real freq;		
+	real vcoutp[0:6];
+	real vcoutn[0:6];
+	real flag=1;
+	real reset;
+	real K_NL;
+	real settle=0;
+	real prev=0;
+	real prev_current=0;
+   analog begin
+   
+      @(initial_step) begin	//initialize the phase and reset signal
+   		phase=0;
+   		reset=0;
+   	end
+   	K_NL=vco_gain*exp(alpha*10e4*(-1*I(ctrl)-ICM+200e-9));
+   	
+   	freq=(center_freq+K_NL*(-1*I(ctrl)-ICM))*(1-exp(-0.85e8*($abstime-prev)));	//define the frequency of oscialltion
+   	
+   	$bound_step(1.0/(100*freq));
+   	if(freq<0 && flag==1 && (V(PHI2_B)<=Vth)) begin
+   		$display("warning VCO is in invalid range");		//display warning if the VCO is not in a valid range of modeling
+   		flag=0;
+   	end
+   	
+		phase=2*`PI*idt(freq,0,reset,1f)+(initial_phase/180.0)*`PI;		//calculate the phase 
+		
+		
+		@(cross(V(CLK)-Vth,+1,1f,1f)) begin
+			if(abs(I(ctrl)-prev_current)>1n)
+				prev=$abstime;	
+			prev_current=I(ctrl);
+		end
+			
+		@(cross(V(PHI2_B)-Vth,+1,1f,1f))
+			;
+		
+		if(V(PHI2_B)>Vth) begin		//reset the phase and the integarion if rst is high
+			phase=(initial_phase/180.0)*`PI;
+			reset=1;
+		end
+		
+		while(phase>=2*`PI)							//wrap the phase from 0 to 2pi
+ 			phase=phase-2.0*`PI;
+		while(phase<0)
+			phase=phase+2.0*`PI;
+		
+		@(cross(V(PHI2_B)-Vth,-1,1f,1f))		//start the integration at falling edge of rst
+			reset=0;
+			
+		while(phase>=2*`PI)							//wrap the phase from 0 to 2pi
+ 			phase=phase-2.0*`PI;
+		while(phase<0)
+			phase=phase+2.0*`PI;
+			
+		generate ii (0,6) begin		//generate the output depending on the phase
+			@(cross(phase-(ii*`PI/7.0),0,1f,1f) or cross(phase-((ii+7)*`PI/7.0),0,1f,1f))
+				;
+			if(phase>=ii*`PI/7.0 && phase<ii*`PI/7.0+`PI) begin
+				vcoutp[ii]=(ii%2==0) ? VLOW:VHIGH;
+				vcoutn[ii]=(ii%2==0) ? VHIGH:VLOW;
+			end
+			else	begin
+				vcoutp[ii]=(ii%2==0) ? VHIGH:VLOW;
+				vcoutn[ii]=(ii%2==0) ? VLOW:VHIGH;
+			end
+			
+		end
+  		generate i(0,6) begin
+  			V(outp[i])<+transition(vcoutp[i],0,tt,tt);
+  			V(outn[i])<+transition(vcoutn[i],0,tt,tt);
+  		end
+  
+   end
+   
+endmodule

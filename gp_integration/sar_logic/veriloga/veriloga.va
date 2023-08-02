@@ -1,0 +1,80 @@
+`include "constants.h"
+`include "discipline.h"
+`define n_bits 8                                            //number of bits 
+
+module sar_logic(CLK,,SOC,vinp,vinn,outp,outn,EOC,sel_type,VCM_EN,RST,gnd,vdd);
+
+	inout gnd,vdd; 										
+	input vinp,vinn,CLK,RST,SOC,sel_type; 										//comp is the comparator output, CLK marks the start of conversion
+	output EOC;    														//marks the end of conversion
+	output [0:`n_bits-1] outp,outn,VCM_EN; 							//output of the sar logic
+	electrical vinp,vinn,CLK,EOC,RST,SOC,gnd,vdd,sel_type;
+	electrical [0:`n_bits-1] outn,outp,VCM_EN;
+	parameter real high=5; 												//the voltage value of logic '1'
+	parameter real low =0 ;												//the voltage value of logic '0'
+	parameter real tt=1p;
+	real Vth=(high+low)/2.0;
+	real tempP[0:`n_bits-1];											//this stores the value of the output bits 
+	real tempN[0:`n_bits-1];
+	real tempCM[0:`n_bits-1];
+	real SOC_flag=0;														//this flag marks the begining of conversion
+	integer index;															//the index of the output bits
+	real EOC_temp;															//this stores the value of the EOC
+	real skip=1;
+	//***********SAR lgic***********************
+	analog begin
+	@(cross(V(RST)-Vth,+1,0.01n,RST.potential.abstol) or initial_step) begin
+			generate ii (0,`n_bits-1) begin
+				tempP[ii]=low;
+				tempN[ii]=high;
+				tempCM[ii]=high;
+			end
+			EOC_temp=low;
+		end
+		@(cross(V(RST)-Vth, -1, 0.01n, SOC.potential.abstol)) begin	 			 //start of conversion at the rising edge of the CLK
+			//tempP[`n_bits-1]=high;															//sets the MSB to high (i.e. sets the SAR output to midscale)
+			//tempN[`n_bits-1]=low;
+			//tempCM[`n_bits-1]=low;
+			EOC_temp=low;																		//sets the EOC to low 
+			SOC_flag=1;																			//sets the SOC to high
+			index=`n_bits;																		//sets the index to the MSB
+			skip=0;																				//not used
+		end
+		
+		@(cross(V(CLK)-Vth,+1,0.01n,CLK.potential.abstol)) begin														//enter this block periodically and the period is conv_time 
+			if (SOC_flag==1) begin															//only procceeds if the SOC flag is set by the CLK
+				//if(skip==0) begin
+				if (1==1) begin
+					//if (V(vinp)<Vth) begin													//if the output of the comparator is low set the current bit to low
+						//tempP[index]=low;
+						//tempN[index]=high;
+					//end
+					index=index-1;																	//decrement the index
+					if (index>=0) begin			
+						if(V(vinp)>=Vth) begin
+							tempP[index]=high;														//set the next bit to high
+							tempN[index]=low;
+						end
+						tempCM[index]=low;
+						if(index==0)
+							EOC_temp=high;																//set the EOC to high								
+					end
+					else begin																		//if index is negative, we reached end of conversion			
+						SOC_flag=0;																	//reset the SOC to low
+					end	
+				end
+				else
+					skip=skip-1;
+			end	
+		end
+		
+		V(EOC)<+ transition (EOC_temp,0,tt);											//sets the EOC port to the value of EOC_temp
+		generate ii (`n_bits-1,0) begin													//sets the out pots to the value of temp
+			V(outp[ii])<+ transition(tempP[ii],0,tt);								//never use "V(out[ii])<+temp[ii]" because it might cause glitchess
+			V(outn[ii])<+ transition(tempN[ii],0,tt);
+			V(VCM_EN[ii])<+ transition(tempCM[ii],0,2*tt);
+		end
+	end
+		
+			
+endmodule

@@ -1,0 +1,16 @@
+`include "discipline.h"
+`include "constants.h"
+
+module CCO_diff_to_single(vinp,vinn,voutp,voutn);
+	input vinp,vinn;
+	output voutp,voutn;
+	electrical vinp,vinn,voutp,voutn;
+	
+	analog begin
+		V(voutp)<+(V(vinp)-V(vinn)+1.8)/2.0;
+		V(voutn)<+(V(vinn)-V(vinp)+1.8)/2.0;
+	end
+
+// Module contents
+
+endmodule // CCO_diff_to_single

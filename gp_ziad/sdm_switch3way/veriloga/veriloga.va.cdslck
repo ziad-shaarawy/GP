@@ -1,0 +1,16 @@
+#
+# Edit Lock-Stake file. CAUTION: Please do not change.
+#
+# Information about current Edit Lock Owner.
+#
+LockStakeVersion               1.1
+LoginName                      ziad
+HostName                       shaarawy
+ProcessIdentifier              131
+ProcessCreationTime_UTC        1683562700
+ProcessCreationTime_Readable   Mon May  8 18:18:20 2023 Kaliningrad Standard Time
+AppIdentifier                  OA File System Design Manager
+OSType                         unix
+ReasonForPlacingEditLock       OpenAccess edit lock
+FilePathUsedToEditLock         /home/ziad/TannerEDA/GP2/gp_ziad/sdm_switch3way/veriloga/veriloga.va.cdslck
+TimeEditLocked                 Mon May  8 18:27:38 2023 Kaliningrad Standard Time

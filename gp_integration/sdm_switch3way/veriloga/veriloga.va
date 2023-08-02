@@ -1,0 +1,37 @@
+`include "constants.h"
+`include "discipline.h"
+
+module sdm_switch3way(VREFP,VCM,VREFN,VOUT,UP,DOWN,gnd,vdd);
+
+	inout VREFP,VCM,VREFN,VOUT,gnd,vdd;
+	input UP,DOWN;
+	electrical VREFP,VCM,VREFN,VOUT,UP,DOWN;
+	branch(VOUT,VREFP) res_p;
+	branch(VOUT,VCM) res_cm;
+	branch(VOUT,VREFN) res_n;
+	parameter real VHIGH=2;
+	parameter real VLOW=0;
+	real Vth=(VHIGH+VLOW)/2.0;
+	
+	analog begin
+		
+		@(cross(V(UP)-Vth,0,1n,UP.potential.abstol) or cross(V(DOWN)-Vth,0,1n,DOWN.potential.abstol))
+			;
+			
+		if(V(UP)>=Vth && V(DOWN)<Vth) begin
+			V(VOUT)<+V(VREFN);
+		end
+		
+		else if(V(UP)<Vth && V(DOWN)>=Vth) begin
+			V(VOUT)<+V(VREFP);
+		end
+		
+		else begin
+			V(VOUT)<+V(VCM);
+		end
+		
+	end
+		
+// Module contents
+
+endmodule // switch_3way

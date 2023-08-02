@@ -1,0 +1,13 @@
+`include "constants.h"
+`include "disciplines.h"
+
+module sar_balun(vdiff,vcm,vp,vn);
+	inout vdiff,vcm,vp,vn;
+	electrical vdiff,vcm,vp,vn;
+	
+	analog begin
+		V(vp)<+V(vcm)+V(vdiff)/2;
+		V(vn)<+V(vcm)-V(vdiff)/2;
+	end
+
+endmodule // balun

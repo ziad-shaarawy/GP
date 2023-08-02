@@ -1,0 +1,16 @@
+#
+# Edit Lock-Stake file. CAUTION: Please do not change.
+#
+# Information about current Edit Lock Owner.
+#
+LockStakeVersion               1.1
+LoginName                      Alice
+HostName                       DESKTOP-GG69N31
+ProcessIdentifier              22113
+ProcessCreationTime_UTC        1676810005
+ProcessCreationTime_Readable   Sun Feb 19 14:33:25 2023 Kaliningrad Standard Time
+AppIdentifier                  OA File System Design Manager
+OSType                         unix
+ReasonForPlacingEditLock       OpenAccess edit lock
+FilePathUsedToEditLock         /home/Alice/TannerEDA/UMC_180nm/GP_lib/NAND2/symbol/symbol.oa.cdslck
+TimeEditLocked                 Sun Feb 19 14:39:58 2023 Kaliningrad Standard Time

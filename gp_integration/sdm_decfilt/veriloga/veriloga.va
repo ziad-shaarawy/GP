@@ -1,0 +1,40 @@
+`include "discipline.h"
+`include "constants.h"
+
+module sdm_decfilt(vin, vout, CLK,PHI2);
+	input vin,CLK,PHI2;
+	output vout;
+	electrical vin, vout, CLK,PHI2;
+	parameter integer N=15; 
+	parameter real VHIGH=2;
+	parameter real VLOW=0;
+	parameter real tt = 1p;
+	parameter real drop=0;
+	real Vth=(VHIGH+VLOW)/2.0;
+	integer count;
+	real sum=0.0;
+	real vout_val;
+	
+	   analog begin
+	      @ (cross(V(CLK) - Vth, 1)) begin
+	      	if(V(PHI2)>=Vth) begin
+	      		if(count>=drop)
+		         	sum = sum + V(vin);
+		         count= count + 1;
+		
+		         if (count == N+drop) begin
+		            count = 0;
+			    		vout_val = sum/N;
+			    		sum = 0.0;
+		         end
+		      end
+		     end
+	      
+	      @ (cross(V(PHI2)-Vth,1)) begin
+	      	count=0;
+	      	sum=0;
+	      end
+	      	
+	      V(vout) <+ transition(vout_val,0,tt);
+	   end
+endmodule

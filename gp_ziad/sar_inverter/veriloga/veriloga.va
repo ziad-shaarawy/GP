@@ -1,0 +1,27 @@
+`include "constants.vams"
+`include "disciplines.vams"
+
+module sar_inverter(in,out);
+
+	input in;
+	output out;
+	voltage in,out;
+	parameter real Vth=1;
+	parameter real Vh=2;
+	parameter real Vl=0;
+	parameter real tt=1n;
+	real Vout;
+	//real Vout;
+	
+	analog begin
+		@(cross(V(in)-Vth))
+			;
+		if (V(in)>Vth)
+			Vout=Vl;
+		else
+			Vout=Vh;
+		V(out)<+ transition (Vout,0,tt);
+	end
+// Module contents
+
+endmodule // inverter

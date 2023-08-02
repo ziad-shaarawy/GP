@@ -1,0 +1,40 @@
+`include "constants.vams"
+`include "disciplines.vams"
+
+
+module sdm_pfd_dff(D, CLK, Q, Qbar,R,R2) ;
+	input CLK, D,R,R2 ;
+	output Q, Qbar;
+	electrical Q, Qbar, CLK, D, R,R2;
+	parameter real vlogic_high = 5 ;
+	parameter real vlogic_low = 0 ;
+	parameter real vtrans_clk = 2.5 ;
+	parameter real vtrans = 2.5 ;
+	parameter real tdel = 0 from [0:inf) ;
+	parameter real trise = 1p from [0:inf) ;
+	parameter real tfall = 1p from [0:inf) ;
+	real VQ,VQbar;
+	integer x ;
+	analog begin
+		@ (cross( V(CLK) - vtrans_clk,+1,1f,1f)) begin
+			x = (V(D) > vtrans);
+			VQ=vlogic_high*x + vlogic_low*!x;
+			VQbar=vlogic_high*!x + vlogic_low*x;
+		end
+		@ (cross( V(R) - vtrans_clk,+1,1f,1f)) begin
+			VQ=vlogic_low;
+			VQbar=vlogic_low;
+		end
+		
+		@(cross(V(R2)-vtrans_clk,+1,1f,1f)) 
+			;
+		if(V(R2)>vtrans_clk) begin
+			VQ=vlogic_low;
+			VQbar=vlogic_low;
+		end
+		
+			
+		V(Q) <+ transition( VQ,tdel, trise, tfall );
+		V(Qbar) <+ transition( VQbar, tdel,trise, tfall ) ;
+	end
+endmodule

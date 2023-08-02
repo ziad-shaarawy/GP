@@ -1,0 +1,12 @@
+* T-Spice simulation bias point
+* T-Spice version 2021.2
+* Simulation date: Wed Feb  8 13:44:07 2023
+* Input netlist: C:\Users\Remon\AppData\Local\Temp\2NOR_TB.sp
+* Alter: 0
+* Temperature: 25
+* Transient Time: 9.9958e-312
+
+.NODESET
++ V(Out) = 0.499996179463753     
++ V(X2NOR_1.N_1) = 0.499998085053874     
+

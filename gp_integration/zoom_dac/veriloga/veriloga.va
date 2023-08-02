@@ -1,0 +1,31 @@
+`include "constants.h"
+`include "discipline.h"
+`define n_bits 8 																	//define the nubmer of bits
+
+
+
+module zoom_dac(bits_sar,sdm_out,out,PHI2) ;
+	input [0:`n_bits-1] bits_sar;
+	input sdm_out;
+	input PHI2;															
+	output out ; 
+	electrical [0:`n_bits-1] bits_sar ;
+	electrical out,PHI2,sdm_out ;
+	real Ti ; 																		//variable stores the value of the analog output signal
+	real scale_fact ;																																									 
+	parameter real threshold=1; 												//the threshold that determines if the bit is zero or one
+	parameter real tt=10p;
+	real sdm_code=0;
+	analog begin
+		@(cross(V(PHI2)-threshold,-1,0.01n,PHI2.potential.abstol)) begin	
+			sdm_code=0.25*V(sdm_out);
+			Ti = 0 ;																					//initializing the varaible to zero
+			scale_fact = 1;																	//initializing the the scale factor to one
+			generate ii (0,`n_bits-1) begin
+				Ti = Ti + ((V(bits_sar[ii]) > threshold) ? (1.0*scale_fact) : 0); //Ti=B0+2*B1+4*B2+.....
+				scale_fact = scale_fact*2 ;													//multiplying the scale factor by 2 
+			end
+		end
+		V(out) <+ transition (Ti+sdm_code,0,tt); 			//scaling the output by the reference voltage/256 (Ti=B0+2B1+4B2+8B3....)*Vref/256
+	end
+endmodule

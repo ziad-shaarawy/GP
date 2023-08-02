@@ -1,0 +1,26 @@
+`include "constants.vams"
+`include "disciplines.vams"
+
+module sar_switch2way(ctrl,t0,t1,t2);
+	input ctrl;
+	inout t0,t1,t2;
+	electrical t0,t1,t2,ctrl;
+	parameter vth=1;
+	real vout=0;
+	analog begin
+		
+		@(cross(V(ctrl)-vth))
+			;
+		if(V(ctrl)>=vth) begin
+			vout=V(t1);
+		end
+		
+		else begin
+			vout=V(t2);
+		end
+		
+		V(t0)<+vout;
+	end
+// Module contents
+
+endmodule // switch_2way

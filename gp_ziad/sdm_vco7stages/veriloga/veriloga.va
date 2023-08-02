@@ -1,0 +1,70 @@
+`include "discipline.h"
+`include "constants.h"
+`define PI  	3.14159265358979323846264338327950288419716939937511
+
+module sdm_vco7stages(ctrl,out,rst,gnd,vdd);
+	inout vdd,gnd;
+	input ctrl,rst;
+	output [0:6] out;
+	electrical ctrl,rst,vdd,gnd;
+	electrical [0:6] out;
+	parameter real center_freq = 10e6;
+	parameter real vco_gain = 1e6;
+	parameter real VHIGH=2;
+	parameter real VLOW=0;
+	parameter real tt=10p;
+	parameter real VCM=0;
+	parameter real initial_phase=0;
+	real Vth=(VHIGH+VLOW)/2;
+   real phase; 
+   real freq;		
+	real vcout[0:6];
+	real flag=1;
+	real reset;
+   analog begin
+   
+      @(initial_step) begin	//initialize the phase and reset signal
+   		phase=0;
+   		reset=0;
+   	end
+   	
+   	freq=center_freq+vco_gain*(V(ctrl)-VCM);	//define the frequency of oscialltion
+   	
+   	if(freq<0 && flag==1) begin
+   		$display("warning VCO2 is in invalid range");		//display warning if the VCO is not in a valid range of modeling
+   		flag=0;
+   	end
+   	
+		phase=2*`PI*idt(freq,0,reset,1f)+(initial_phase/180.0)*`PI;		//calculate the phase 
+		while(phase>=2*`PI)							//wrap the phase from 0 to 2pi
+ 			phase=phase-2.0*`PI;
+		while(phase<0)
+			phase=phase+2.0*`PI;
+			
+		@(cross(V(rst)-Vth,+1,1f,1f))
+			;
+		
+		if(V(rst)>Vth) begin		//reset the phase and the integarion if rst is high
+			phase=0;
+			reset=1;
+		end
+		
+		@(cross(V(rst)-Vth,-1,1f,1f))		//start the integration at falling edge of rst
+			reset=0;
+			
+		generate ii (0,6) begin		//generate the output depending on the phase
+			@(cross(phase-(ii*`PI/7.0),0,1f,1f) or cross(phase-((ii+7)*`PI/7.0),1f,1f))
+				;
+			if(phase>=ii*`PI/7.0 && phase<ii*`PI/7.0+`PI)
+				vcout[ii]=(ii%2==0) ? VLOW:VHIGH;
+			else
+				vcout[ii]=(ii%2==0) ? VHIGH:VLOW;
+			
+		end
+  		generate i(0,6) begin
+  			V(out[i])<+transition(vcout[i],0,tt,tt);
+  		end
+  
+   end
+   
+endmodule

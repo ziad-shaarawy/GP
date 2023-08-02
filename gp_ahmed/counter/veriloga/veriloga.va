@@ -1,0 +1,29 @@
+`include "constants.vams"
+`include "disciplines.vams"
+`define SIZE 8
+module counter (out, clk);
+inout clk;
+electrical clk;
+output [0:`SIZE-1] out;
+electrical [0:`SIZE-1] out;
+parameter integer setval = -1 from [-1:(1<<`SIZE)-1];
+parameter real vtrans_clk = 0.6;
+parameter real vtol = 0; // signal tolerance on the clk
+parameter real ttol = 0; // time tolerance on the clk
+parameter real vhigh = 1.8;
+parameter real vlow = 0;
+parameter real tdel = 30p;
+parameter real trise = 30p;
+parameter real tfall = 30p;
+parameter integer up = 1 from [0:1]; //0=increasing 1=decreasing
+parameter integer stepsize = 1;
+integer outval;
+analog begin
+@(initial_step("static","ac")) outval = setval;
+@(cross(V(clk)-vtrans_clk,1,vtol,ttol))
+outval = (outval +(+up- !up)*stepsize)%(1<<`SIZE);
+generate j (`SIZE-1 , 0) begin
+V(out[j]) <+ transition (!(!(outval &(1<<j)))*vhigh+!(outval&(1<<j))*vlow,tdel,trise,tfall);
+end
+end
+endmodule

@@ -1,0 +1,39 @@
+`include "constants.h"
+`include "discipline.h"
+
+module sar_comp(VINP,VINN,VON,VOP,CLK,CLK_B,gnd,vdd,PHI1,PHI2);
+	inout gnd,vdd;
+	input VINP,VINN,CLK,CLK_B,PHI2,PHI1;
+	output VOP, VON;
+	voltage VINP,VINN,CLK,VOP,VON,gnd,vdd,CLK_B,PHI2,PHI1;
+	parameter real Vdd=1;
+	parameter real Vcc=-1;
+	parameter real rise_time=1n;
+	parameter real CLK_trans=0.5;
+	parameter real delay=0;
+	parameter real VOS=0;
+	real outp,outn;
+	
+	analog begin
+		@(cross(V(CLK)-CLK_trans,+1, 0.01n, CLK.potential.abstol)) begin
+			if(V(VINP)+VOS>=V(VINN)) begin
+				outp=Vdd;
+				outn=Vcc;
+			end
+			else begin
+				outp=Vcc;
+				outn=Vdd;
+			end
+		end
+		
+		@(cross(V(CLK)-CLK_trans,-1, 0.01n, CLK.potential.abstol)) begin
+			outp=0.16;
+			outn=0.16;
+		end
+		V(VOP)<+transition(outp,delay,rise_time);
+		V(VON)<+transition(outn,delay,rise_time);
+	end
+		
+// Module contents
+
+endmodule // comp_diff

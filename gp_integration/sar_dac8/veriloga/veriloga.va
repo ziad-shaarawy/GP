@@ -1,0 +1,28 @@
+`include "constants.h"
+`include "discipline.h"
+`define n_bits 8 																	//define the nubmer of bits
+
+
+
+module sar_dac8(bits,out,PHI1) ;
+	input [0:`n_bits-1] bits;
+	input PHI1;															
+	output out ; 
+	electrical [0:`n_bits-1] bits ;
+	electrical out,Vref,PHI1 ;
+	real Ti ; 																		//variable stores the value of the analog output signal
+	real scale_fact ;																																									 
+	parameter real threshold=1; 												//the threshold that determines if the bit is zero or one
+	parameter real tt=10p;
+	analog begin
+		@(cross(V(PHI1)-threshold,-1,0.01n,PHI1.potential.abstol)) begin	
+			Ti = 0 ;																					//initializing the varaible to zero
+			scale_fact = 1;																	//initializing the the scale factor to one
+			generate ii (0,`n_bits-1) begin
+				Ti = Ti + ((V(bits[ii]) > threshold) ? (1.0*scale_fact) : 0); //Ti=B0+2*B1+4*B2+.....
+				scale_fact = scale_fact*2 ;													//multiplying the scale factor by 2 
+			end
+		end
+		V(out) <+ transition (Ti,0,tt); 			//scaling the output by the reference voltage/256 (Ti=B0+2B1+4B2+8B3....)*Vref/256
+	end
+endmodule

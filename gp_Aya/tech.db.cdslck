@@ -1,0 +1,16 @@
+#
+# Edit Lock-Stake file. CAUTION: Please do not change.
+#
+# Information about current Edit Lock Owner.
+#
+LockStakeVersion               1.1
+LoginName                      Aya
+HostName                       AyaPC
+ProcessIdentifier              14948
+ProcessCreationTime_UTC        1680384771
+ProcessCreationTime_Readable   Sat Apr  1 23:32:51 2023 Kaliningrad Standard Time
+AppIdentifier                  OA File System Design Manager
+OSType                         unix
+ReasonForPlacingEditLock       OpenAccess edit lock
+FilePathUsedToEditLock         /home/Aya/TannerEDA/GP/gp_Aya/tech.db.cdslck.dirlck
+TimeEditLocked                 Sun Apr  2 04:19:33 2023 Kaliningrad Standard Time

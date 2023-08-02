@@ -1,0 +1,4 @@
+INCLUDE ../UMC_180nm/lib.defs
+INCLUDE ../TannerTools_v2022.2/Process/Standard_Libraries_160/lib.defs
+DEFINE gp_integration gp_integration
+ASSIGN gp_integration libMode shared

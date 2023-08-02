@@ -1,0 +1,33 @@
+`include "constants.h"
+`include "discipline.h"
+
+module sar_gmandcomp_comparator(Vp,Vn,Voutn,Voutp,CLK);
+	input Vp,Vn,CLK;
+	output Voutp, Voutn;
+	voltage Vp,Vn,CLK,Voutp,Voutn;
+	parameter real Vdd=1;
+	parameter real Vcc=-1;
+	parameter real rise_time=1n;
+	parameter real CLK_trans=0.5;
+	parameter real delay=0;
+	
+	real outp,outn;
+	
+	analog begin
+		@(cross(V(CLK)-CLK_trans,-1, 0.01n, CLK.potential.abstol)) begin
+			if(V(Vp)>=V(Vn)-1n) begin
+				outp=Vdd;
+				outn=Vcc;
+			end
+			else begin
+				outp=Vcc;
+				outn=Vdd;
+			end
+		end
+		V(Voutp)<+transition(outp,delay,rise_time);
+		V(Voutn)<+transition(outn,delay,rise_time);
+	end
+		
+// Module contents
+
+endmodule // comp_diff
